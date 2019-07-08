@@ -1,0 +1,98 @@
+import java.math.*;
+import java.util.*;
+import java.io.*;
+  
+public class Main { 
+  
+    public static void main(String[] args) throws Exception
+    {
+        String file = "c:/users/lifeiteng/desktop/java/poj/src/in";
+        Scanner in;
+        int test = 0;
+        if(test > 0) in = new Scanner(System.in);
+        else in = new Scanner(new File(file));
+        /////////////////////////////////////////////////
+        
+        while(in.hasNext())
+        {
+        	String str = in.nextLine();
+        	String[] split = str.split("\\s+");
+        	double val = Double.valueOf(split[0]);
+        	int pow = Integer.valueOf(split[1]);
+        	// special cases
+        	if(pow == 0) {System.out.println("1"); continue;}
+        	if(val == 0.0) {System.out.println("0"); continue;}
+        	// 100 for preserving the format
+        	String sval = String.format("%.100f", val);
+        	String res = pow(sval, pow);
+        	int idx2 = res.length() - 1;
+        	while(res.charAt(idx2) == '0') idx2--;
+        	if(res.charAt(idx2) == '.') idx2--;
+        	int idx = 0;
+        	while(res.charAt(idx) == '0') idx++;
+        	// trim zeros - the special case 0.0 to any power is handled
+        	// you do not get any zeros for raising power. thus safe
+        	System.out.println(res.substring(idx, idx2 + 1));
+        }
+    }
+
+    static String pow(String str, int pow)
+    {
+    	// if(str.equals("0.0") || str.) return str;
+    	if(pow == 0) return "1";
+    	if(pow == 1) return str;//mult(str, "1.0");
+    	String half = pow(str, pow / 2);
+    	half = mult(half, half);
+    	if(pow % 2 == 1) half = mult(half, str);
+    	return half;
+    }
+
+    static String mult(String s1, String s2)
+    {
+    	// System.out.printf("%s %s\n", s1, s2);
+    	int p1 = s1.indexOf("."), p2 = s2.indexOf(".");
+    	if(s1.equals("0.0") || s2.equals("0.0")) return "0.0";
+    	// multiply s1 and s2
+    	int m = s1.length(), n = s2.length(), idx = 0;
+    	// p1 = number of digits after dot in s1, same for p2
+		p1 = m - 1 - p1;
+    	p2 = n - 1 - p2;
+    	// System.out.printf("p1 = %d p2 = %d\n", p1, p2);
+    	int[] res = new int[m + n + 1];
+    	for(int i = m - 1; i >= 0; i--)
+    	{
+    		if(s1.charAt(i) == '.') continue;
+    		int a = s1.charAt(i) - '0', c = 0, offset = 0;
+    		for(int j = n - 1; j >= 0; j--)
+    		{
+    			if(s2.charAt(j) == '.') continue;
+    			int b = s2.charAt(j) - '0';
+    			int dig = (a * b + c) % 10;
+    			c = (a * b + c) / 10;
+    			res[idx + offset] += dig;
+    			offset++;
+    		}
+    		if(c > 0) res[idx + offset] += c;
+    		idx++;
+    	}
+    	// System.out.println(Arrays.toString(res));
+    	String re = "";
+    	for(int i = 0; i < m + n + 1; i++)
+    	{
+    		if(res[i] >= 10) res[i + 1] += res[i] / 10;
+    		res[i] %= 10;
+    		re  = "" + res[i] + re;
+    		if(i == p1 + p2 - 1) re = "." + re;
+    	}
+    	idx = 0;
+    	int idx2 = re.length() - 1;
+    	// trim zeros
+    	while(re.charAt(idx) == '0') idx++;
+    	while(re.charAt(idx2) == '0') idx2--;
+    	if(re.charAt(idx) == '.') idx--;
+		if(re.charAt(idx2) == '.') idx2++;
+    	return re.substring(idx, idx2 + 1);
+    }
+
+
+}
